@@ -1,2 +1,2 @@
-# student-management-system
-Student Management System using React, Node.js, Express, and MongoDB
+# food ordering system
+food ordering System using React, Node.js, Express, and MongoDB
