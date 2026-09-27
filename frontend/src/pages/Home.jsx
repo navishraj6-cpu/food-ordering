@@ -5,6 +5,7 @@ import { FoodCard } from "../components/FoodCard";
 import { FoodDetailModal } from "../components/FoodDetailModal";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import fallbackFoods from "../data/fallbackFoods.json";
 
 const CATEGORIES = [
   { id: "all", name: "All Dishes", icon: "✨" },
@@ -178,10 +179,15 @@ export const Home = ({ searchTerm }) => {
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setFoods(data);
+        } else if (Array.isArray(fallbackFoods) && fallbackFoods.length > 0) {
+          setFoods(fallbackFoods);
         }
       })
-      .catch(() => {
-        // Local fallback handled if needed
+      .catch((err) => {
+        console.warn("Could not fetch remote foods, applying fallback catalog:", err.message);
+        if (Array.isArray(fallbackFoods) && fallbackFoods.length > 0) {
+          setFoods(fallbackFoods);
+        }
       })
       .finally(() => setLoading(false));
   }, []);

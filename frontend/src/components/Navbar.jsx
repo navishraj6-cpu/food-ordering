@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import fallbackFoods from "../data/fallbackFoods.json";
 
 export const Navbar = ({ searchTerm, setSearchTerm }) => {
   const { totalCount, setIsCartOpen, addToCart } = useCart();
@@ -33,12 +34,17 @@ export const Navbar = ({ searchTerm, setSearchTerm }) => {
     fetch(`${API_URL}/api/foods`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setAllFoods(data);
+        } else if (Array.isArray(fallbackFoods)) {
+          setAllFoods(fallbackFoods);
         }
       })
       .catch((err) => {
-        console.warn("Could not load foods for search autocomplete:", err);
+        console.warn("Could not load foods for search autocomplete, using fallback:", err);
+        if (Array.isArray(fallbackFoods)) {
+          setAllFoods(fallbackFoods);
+        }
       });
   }, []);
 

@@ -3,21 +3,23 @@ const Food = require("../models/food");
 
 const router = express.Router();
 
+const fallbackFoods = require("../data/fallbackFoods.json");
+
 router.get("/", async (req, res) => {
   try {
     const mongoose = require("mongoose");
     if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({
-        message: "Database connecting, fallback active",
-      });
+      console.warn("Database not ready yet, serving fallback food items");
+      return res.json(fallbackFoods);
     }
     const foods = await Food.find();
+    if (!foods || foods.length === 0) {
+      return res.json(fallbackFoods);
+    }
     res.json(foods);
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to get food items",
-      error: error.message,
-    });
+    console.warn("Failed to get foods from DB, serving fallback:", error.message);
+    res.json(fallbackFoods);
   }
 });
 

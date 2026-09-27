@@ -71,7 +71,22 @@ app.get("/health", (req, res) => {
   });
 });
 
-const mongoUri = (process.env.MONGO_URI || "").trim();
+const DEFAULT_MONGO_URI =
+  "mongodb+srv://navishraj6_db_user:navi2006@cluster0.ydui5cc.mongodb.net/foodie?retryWrites=true&w=majority&appName=Cluster0";
+
+let rawUri = (process.env.MONGO_URI || "").trim();
+// Strip wrapping quotes if pasted with quotes in Vercel dashboard
+if (
+  (rawUri.startsWith('"') && rawUri.endsWith('"')) ||
+  (rawUri.startsWith("'") && rawUri.endsWith("'"))
+) {
+  rawUri = rawUri.slice(1, -1).trim();
+}
+
+const mongoUri =
+  rawUri && (rawUri.startsWith("mongodb://") || rawUri.startsWith("mongodb+srv://"))
+    ? rawUri
+    : DEFAULT_MONGO_URI;
 
 async function connectDB() {
   if (isConnecting || mongoose.connection.readyState === 1) return;
