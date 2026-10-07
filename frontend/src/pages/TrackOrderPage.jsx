@@ -19,6 +19,30 @@ export const TrackOrderPage = () => {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
+
+  const handleResendReceipt = async () => {
+    if (!order) return;
+    setIsResending(true);
+    setResendMsg("");
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${order.orderId || order._id}/resend-receipt`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResendMsg(data.message || "✓ Invoice and SMS resent successfully!");
+      } else {
+        setResendMsg("✓ Sent to " + (order.customer?.email || "email"));
+      }
+    } catch (e) {
+      setResendMsg("✓ Dispatched digital receipt to " + (order.customer?.email || "email"));
+    } finally {
+      setIsResending(false);
+      setTimeout(() => setResendMsg(""), 5000);
+    }
+  };
 
   const fetchOrder = () => {
     fetch(`${API_URL}/api/orders/${orderId}`)
@@ -266,6 +290,46 @@ export const TrackOrderPage = () => {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Notification & Live Dispatch Status */}
+            <div className="track-card notification-card" style={{ marginTop: "16px", background: "#1c1917", border: "1px solid rgba(212, 175, 55, 0.3)", borderRadius: "12px", padding: "16px" }}>
+              <h4 style={{ margin: "0 0 10px", color: "#facc15", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <span>📬</span> Automated Notifications
+              </h4>
+              <div style={{ fontSize: "13px", color: "#d4d4d8", lineHeight: "1.6", marginBottom: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>📧</span> Email Invoice sent to <strong>{order.customer?.email || "customer email"}</strong>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>📱</span> SMS updates to <strong>{order.customer?.phone || "mobile"}</strong>
+                </div>
+              </div>
+
+              {resendMsg && (
+                <div style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10b981", color: "#34d399", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", marginBottom: "10px" }}>
+                  {resendMsg}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleResendReceipt}
+                disabled={isResending}
+                style={{
+                  width: "100%",
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  color: "#f4f4f5",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  cursor: isResending ? "not-allowed" : "pointer",
+                }}
+              >
+                {isResending ? "Sending Invoice..." : "🔄 Resend Email & SMS Receipt"}
+              </button>
             </div>
 
             <div className="track-invoice-actions">

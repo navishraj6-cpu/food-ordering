@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { ReceiptModal } from "../components/ReceiptModal";
+import { FoodDetailModal } from "../components/FoodDetailModal";
 
 const STATUS_LABELS = {
   placed: { text: "Order Placed", class: "status-placed", icon: "📝" },
@@ -24,6 +25,7 @@ export const OrdersPage = () => {
   const [searchFeedback, setSearchFeedback] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null);
+  const [ratingTarget, setRatingTarget] = useState(null); // { food, orderId }
   const navigate = useNavigate();
 
   // Multi-source loader: fetches user account orders + device local storage orders
@@ -318,6 +320,26 @@ export const OrdersPage = () => {
                       <span className="item-qty-tag">{item.quantity}x</span>
                       <span className="item-name-tag">{item.name}</span>
                       <span className="item-price-tag">₹{item.price * item.quantity}</span>
+                      {order.orderStatus === "delivered" && (
+                        <button
+                          type="button"
+                          className="item-rate-badge-btn"
+                          style={{
+                            background: "rgba(250, 204, 21, 0.12)",
+                            border: "1px solid rgba(250, 204, 21, 0.35)",
+                            color: "#facc15",
+                            padding: "2px 8px",
+                            borderRadius: "12px",
+                            fontSize: "11px",
+                            marginLeft: "auto",
+                            cursor: "pointer",
+                            fontWeight: "600",
+                          }}
+                          onClick={() => setRatingTarget({ food: item, orderId: order.orderId })}
+                        >
+                          ⭐ Rate
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -371,6 +393,15 @@ export const OrdersPage = () => {
         onClose={() => setSelectedReceiptOrder(null)}
         order={selectedReceiptOrder}
       />
+
+      {/* Dish Review & Rating Modal */}
+      {ratingTarget && (
+        <FoodDetailModal
+          food={ratingTarget.food}
+          initialOrderId={ratingTarget.orderId}
+          onClose={() => setRatingTarget(null)}
+        />
+      )}
     </div>
   );
 };

@@ -806,11 +806,20 @@ export const AdminPage = () => {
                   <tr key={food._id || food.name}>
                     <td className="food-td-name">
                       <img
-                        src={food.image}
+                        src={
+                          (food.name || "").toLowerCase().includes("sizzling brownie") &&
+                          (!food.image || food.image.includes("ytimg"))
+                            ? "/images/sizzling-brownie.jpg"
+                            : food.image
+                        }
                         alt={food.name}
                         className="admin-food-thumb"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
+                          if ((food.name || "").toLowerCase().includes("sizzling brownie")) {
+                            e.currentTarget.src = "/images/sizzling-brownie.jpg";
+                            return;
+                          }
                           e.currentTarget.src =
                             "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
                         }}

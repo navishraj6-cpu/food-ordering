@@ -100,11 +100,20 @@ export const CartDrawer = () => {
                 return (
                   <div key={id} className="cart-item-row">
                     <img
-                      src={item.food.image || fallbackSvg}
+                      src={
+                        (item.food.name || "").toLowerCase().includes("sizzling brownie") &&
+                        (!item.food.image || item.food.image.includes("ytimg"))
+                          ? "/images/sizzling-brownie.jpg"
+                          : item.food.image || fallbackSvg
+                      }
                       alt={item.food.name}
                       className="cart-item-thumb"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
+                        if ((item.food.name || "").toLowerCase().includes("sizzling brownie")) {
+                          e.currentTarget.src = "/images/sizzling-brownie.jpg";
+                          return;
+                        }
                         e.currentTarget.src = fallbackSvg;
                       }}
                     />

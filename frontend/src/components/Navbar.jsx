@@ -493,10 +493,20 @@ export const Navbar = ({ searchTerm, setSearchTerm }) => {
                     onClick={() => handleSelectSuggestion(food)}
                   >
                     <img
-                      src={food.image || "/images/fallback-food.jpg"}
+                      src={
+                        (food.name || "").toLowerCase().includes("sizzling brownie") &&
+                        (!food.image || food.image.includes("ytimg"))
+                          ? "/images/sizzling-brownie.jpg"
+                          : food.image || "/images/fallback-food.jpg"
+                      }
                       alt={food.name}
                       className="suggestion-thumb"
                       onError={(e) => {
+                        if ((food.name || "").toLowerCase().includes("sizzling brownie") && !e.currentTarget.dataset.retried) {
+                          e.currentTarget.dataset.retried = "true";
+                          e.currentTarget.src = "/images/sizzling-brownie.jpg";
+                          return;
+                        }
                         e.currentTarget.style.display = "none";
                       }}
                     />

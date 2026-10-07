@@ -16,6 +16,9 @@ export const getApiUrl = (path = "") => {
 
 export const getImageUrl = (img) => {
   if (!img) return "";
+  if (typeof img === "string" && img.includes("z2CeQpthwEg")) {
+    return "/images/sizzling-brownie.jpg";
+  }
   if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("data:")) {
     return img;
   }

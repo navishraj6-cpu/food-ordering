@@ -28,8 +28,18 @@ export const FoodCard = ({ food, onSelectFood }) => {
 
   const handleImageError = (e) => {
     e.currentTarget.onerror = null;
+    if ((food.name || "").toLowerCase().includes("sizzling brownie")) {
+      e.currentTarget.src = "/images/sizzling-brownie.jpg";
+      return;
+    }
     e.currentTarget.src = fallbackSvg;
   };
+
+  const displayImage =
+    (food.name || "").toLowerCase().includes("sizzling brownie") &&
+    (!food.image || food.image.includes("ytimg"))
+      ? "/images/sizzling-brownie.jpg"
+      : food.image || fallbackSvg;
 
   return (
     <div
@@ -40,7 +50,7 @@ export const FoodCard = ({ food, onSelectFood }) => {
       {/* Image Wrap */}
       <div className="card-image-wrap">
         <img
-          src={food.image || fallbackSvg}
+          src={displayImage}
           alt={food.name}
           className="card-food-img"
           onError={handleImageError}

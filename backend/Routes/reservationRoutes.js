@@ -3,6 +3,7 @@ const router = express.Router();
 const Reservation = require("../models/Reservation");
 const User = require("../models/User");
 const { protect, optionalAuth, adminOnly } = require("../middleware/auth");
+const { sendReservationConfirmationEmail } = require("../utils/notificationService");
 
 // Standard Table definitions in the restaurant
 const RESTAURANT_TABLES = [
@@ -237,6 +238,13 @@ router.post("/", optionalAuth, async (req, res) => {
       status: "confirmed",
       preOrderItems: preOrderItems || [],
     });
+
+    // Automatically send VIP table reservation confirmation email
+    if (reservation.email) {
+      sendReservationConfirmationEmail(reservation).catch((e) =>
+        console.warn("Could not dispatch reservation confirmation email:", e.message)
+      );
+    }
 
     res.status(201).json({
       success: true,

@@ -25,6 +25,7 @@ const orderRoutes = require("./Routes/orderRoutes");
 const loyaltyRoutes = require("./Routes/loyaltyRoutes");
 const reservationRoutes = require("./Routes/reservationRoutes");
 const groupOrderRoutes = require("./Routes/groupOrderRoutes");
+const reviewRoutes = require("./Routes/reviewRoutes");
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/loyalty", loyaltyRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/group-orders", groupOrderRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 const path = require("path");
 const fs = require("fs");

@@ -313,7 +313,7 @@ const foods = [
     "category": "Desserts",
     "type": "Hot Dessert",
     "price": 229,
-    "image": "https://i.ytimg.com/vi/z2CeQpthwEg/maxresdefault.jpg",
+    "image": "/images/sizzling-brownie.jpg",
     "description": "Hot sizzling brownie served with rich melted fudge topping."
   },
   {

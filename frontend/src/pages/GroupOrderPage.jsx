@@ -359,7 +359,21 @@ export const GroupOrderPage = () => {
             <div className="group-dishes-grid">
               {filteredFoods.map((food) => (
                 <div key={food._id} className="group-dish-card">
-                  <img src={food.image} alt={food.name} className="group-dish-img" />
+                  <img
+                    src={
+                      (food.name || "").toLowerCase().includes("sizzling brownie") &&
+                      (!food.image || food.image.includes("ytimg"))
+                        ? "/images/sizzling-brownie.jpg"
+                        : food.image
+                    }
+                    alt={food.name}
+                    className="group-dish-img"
+                    onError={(e) => {
+                      if ((food.name || "").toLowerCase().includes("sizzling brownie")) {
+                        e.currentTarget.src = "/images/sizzling-brownie.jpg";
+                      }
+                    }}
+                  />
                   <div className="group-dish-info">
                     <strong>{food.name}</strong>
                     <span className="group-dish-price">₹{food.price}</span>
