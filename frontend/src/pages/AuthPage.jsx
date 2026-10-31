@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { validatePassword, validatePhoneNumber } from "../utils/validation";
 
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,13 +16,15 @@ export const AuthPage = () => {
   const { login, register } = useAuth();
   const navigate = useNavigate();
 
+  const pwdValidation = validatePassword(password);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
-    setLoading(true);
 
     try {
       if (isLogin) {
+        setLoading(true);
         const res = await login(email, password);
         if (!res.success) {
           setErrorMsg(res.message || "Invalid credentials.");
@@ -31,10 +34,23 @@ export const AuthPage = () => {
       } else {
         if (!name.trim()) {
           setErrorMsg("Please enter your name.");
-          setLoading(false);
           return;
         }
-        const res = await register(name, email, password, phone, role);
+
+        const phoneCheck = validatePhoneNumber(phone);
+        if (!phoneCheck.isValid) {
+          setErrorMsg(phoneCheck.message);
+          return;
+        }
+
+        const passwordCheck = validatePassword(password);
+        if (!passwordCheck.isValid) {
+          setErrorMsg(passwordCheck.message);
+          return;
+        }
+
+        setLoading(true);
+        const res = await register(name, email, password, phoneCheck.cleanPhone, role);
         if (!res.success) {
           setErrorMsg(res.message || "Registration failed.");
         } else {
@@ -113,12 +129,14 @@ export const AuthPage = () => {
               </div>
 
               <div className="form-group">
-                <label>Phone Number (Optional)</label>
+                <label>Phone Number *</label>
                 <input
                   type="tel"
-                  placeholder="e.g. 9876543210"
+                  placeholder="10-digit mobile (e.g. 9876543210)"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  maxLength={14}
+                  required
                 />
               </div>
             </>
@@ -139,12 +157,77 @@ export const AuthPage = () => {
             <label>Password *</label>
             <input
               type="password"
-              placeholder="Minimum 6 characters"
+              placeholder={isLogin ? "Enter your password" : "Min 8 chars, 1 capital, 1 number, 1 special char"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
+
+          {!isLogin && (
+            <div
+              className="password-requirements-card"
+              style={{
+                marginTop: "-6px",
+                marginBottom: "12px",
+                padding: "10px 14px",
+                borderRadius: "10px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                fontSize: "11px",
+              }}
+            >
+              <div style={{ color: "#a1a1aa", fontWeight: "600", marginBottom: "6px" }}>
+                Password Security Requirements:
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                <span
+                  style={{
+                    color: pwdValidation.hasUpper ? "#34d399" : "#a1a1aa",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontWeight: pwdValidation.hasUpper ? "600" : "normal",
+                  }}
+                >
+                  {pwdValidation.hasUpper ? "✓" : "○"} 1 Capital Letter (A-Z)
+                </span>
+                <span
+                  style={{
+                    color: pwdValidation.hasNumber ? "#34d399" : "#a1a1aa",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontWeight: pwdValidation.hasNumber ? "600" : "normal",
+                  }}
+                >
+                  {pwdValidation.hasNumber ? "✓" : "○"} 1 Number (0-9)
+                </span>
+                <span
+                  style={{
+                    color: pwdValidation.hasSpecial ? "#34d399" : "#a1a1aa",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontWeight: pwdValidation.hasSpecial ? "600" : "normal",
+                  }}
+                >
+                  {pwdValidation.hasSpecial ? "✓" : "○"} 1 Special Char (!@#$...)
+                </span>
+                <span
+                  style={{
+                    color: pwdValidation.hasLength ? "#34d399" : "#a1a1aa",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontWeight: pwdValidation.hasLength ? "600" : "normal",
+                  }}
+                >
+                  {pwdValidation.hasLength ? "✓" : "○"} 8+ Characters
+                </span>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

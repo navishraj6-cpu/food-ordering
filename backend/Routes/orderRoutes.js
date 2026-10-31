@@ -138,6 +138,11 @@ router.post("/", optionalAuth, async (req, res) => {
       return res.status(400).json({ message: "Customer contact info is required." });
     }
 
+    const cleanCustomerPhone = String(customer.phone).replace(/[\s\-()]/g, "");
+    if (!/^(?:\+?91|0)?[6-9]\d{9}$/.test(cleanCustomerPhone)) {
+      return res.status(400).json({ message: "Please provide a valid 10-digit mobile number starting with 6-9." });
+    }
+
     if (!deliveryAddress || !deliveryAddress.street || !deliveryAddress.city) {
       return res.status(400).json({ message: "Delivery address is required." });
     }

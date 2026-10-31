@@ -21,6 +21,32 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Please provide name, email, and password." });
     }
 
+    // Password Complexity Validation: Min 8 chars, 1 uppercase, 1 number, 1 special character
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long." });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ message: "Password must contain at least one uppercase letter (A-Z)." });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ message: "Password must contain at least one number (0-9)." });
+    }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]/.test(password)) {
+      return res.status(400).json({ message: "Password must contain at least one special character (e.g. !@#$%^&*)." });
+    }
+
+    // Phone Number Validation: 10-digit mobile number
+    let cleanPhone = "";
+    if (phone) {
+      const sanitized = String(phone).replace(/[\s\-()]/g, "");
+      if (!/^(?:\+?91|0)?[6-9]\d{9}$/.test(sanitized)) {
+        return res.status(400).json({
+          message: "Please provide a valid 10-digit mobile number starting with 6-9 (e.g. 9876543210).",
+        });
+      }
+      cleanPhone = sanitized.slice(-10);
+    }
+
     const userExists = await User.findOne({ email: email.toLowerCase().trim() });
     if (userExists) {
       return res.status(400).json({ message: "An account with this email already exists." });
@@ -30,7 +56,7 @@ router.post("/register", async (req, res) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
-      phone: phone || "",
+      phone: cleanPhone || "",
       role: role === "admin" ? "admin" : "user",
     });
 

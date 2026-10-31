@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { validatePhoneNumber } from "../utils/validation";
 
 import { API_URL } from "../config/api";
 const API_BASE = `${API_URL}/api`;
@@ -323,8 +324,13 @@ export const ReservationPage = () => {
       setErrorMessage("Please select at least 1 table on the floor plan.");
       return;
     }
-    if (!guestForm.name.trim() || !guestForm.phone.trim()) {
-      setErrorMessage("Please provide your name and contact phone number.");
+    if (!guestForm.name.trim()) {
+      setErrorMessage("Please provide your name.");
+      return;
+    }
+    const phoneCheck = validatePhoneNumber(guestForm.phone);
+    if (!phoneCheck.isValid) {
+      setErrorMessage(phoneCheck.message);
       return;
     }
 
@@ -812,7 +818,8 @@ export const ReservationPage = () => {
                   <input
                     type="tel"
                     required
-                    placeholder="e.g. 9876543210"
+                    placeholder="10-digit mobile (e.g. 9876543210)"
+                    maxLength={14}
                     value={guestForm.phone}
                     onChange={(e) => setGuestForm({ ...guestForm, phone: e.target.value })}
                   />

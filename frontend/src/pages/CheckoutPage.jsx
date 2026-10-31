@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { PaymentModal } from "../components/PaymentModal";
 import { ChefPairingRail } from "../components/ChefPairingRail";
+import { validatePhoneNumber } from "../utils/validation";
 
 export const CheckoutPage = () => {
   const {
@@ -63,8 +64,9 @@ export const CheckoutPage = () => {
       setErrorMsg("Please enter your full name.");
       return false;
     }
-    if (!formData.phone.trim()) {
-      setErrorMsg("Please enter a valid phone number.");
+    const phoneCheck = validatePhoneNumber(formData.phone);
+    if (!phoneCheck.isValid) {
+      setErrorMsg(phoneCheck.message);
       return false;
     }
     if (!formData.street.trim()) {
@@ -210,9 +212,10 @@ export const CheckoutPage = () => {
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="e.g. 9876543210"
+                  placeholder="10-digit mobile (e.g. 9876543210)"
                   value={formData.phone}
                   onChange={handleChange}
+                  maxLength={14}
                   required
                 />
               </div>

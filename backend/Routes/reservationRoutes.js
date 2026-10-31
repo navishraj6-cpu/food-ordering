@@ -182,6 +182,11 @@ router.post("/", optionalAuth, async (req, res) => {
       return res.status(400).json({ message: "All required reservation fields and at least one table must be selected." });
     }
 
+    const cleanReservationPhone = String(phone).replace(/[\s\-()]/g, "");
+    if (!/^(?:\+?91|0)?[6-9]\d{9}$/.test(cleanReservationPhone)) {
+      return res.status(400).json({ message: "Please enter a valid 10-digit mobile number starting with 6-9." });
+    }
+
     const requestedNumbers = requestedTableList.map((t) => t.tableNumber);
 
     // Check collision: Are ANY of the requested tables already booked for date & timeSlot?
